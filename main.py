@@ -1,7 +1,6 @@
 import pygame
 import math
 
-
 class Planet:
     ASTRO_UNIT = 149.6e6 * 1000
     GRAV_CONST = 6.67428e-11
@@ -115,18 +114,12 @@ class Game():
             sim_time_elapsed += sun.TIMESTEP
             self.WIN.fill('Black')
 
-            
-            # Check if the orbit line overlaps
-                # Print day passed
-            
-
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     print("Real time elapsed: " + str(round((real_time_elapsed / 60), 1)) + "s")
                     print("Earth months simulated: " + str(round((sim_time_elapsed / 60 / 24 / 1800), 1)))
                     run = False
                     
-
             for planet in planets:
                 planet.update_position(planets)
                 planet.draw(self.WIN)
