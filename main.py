@@ -1,13 +1,15 @@
 import pygame
 import math
 
+
 class Planet:
     ASTRO_UNIT = 149.6e6 * 1000
     GRAV_CONST = 6.67428e-11
-    SCALE = 150 / ASTRO_UNIT # 1 ASTRO_UNIT = 100 px
-    TIMESTEP = 3600 * 12 # Amount of time each movement represents (1 day)
+    SCALE = 75 / ASTRO_UNIT # 1 ASTRO_UNIT = 100 px
+    TIMESTEP = 3600 * 48 # Amount of time each movement represents (1 day)
 
-    def __init__(self, x, y, radius, color, mass):
+    def __init__(self, name, x, y, radius, color, mass):
+        self.name = name
         self.x = x
         self.y = y
         self.radius = radius
@@ -34,11 +36,11 @@ class Planet:
 
                 updated_points.append((x, y))
 
-            pygame.draw.lines(win, self.color, False, updated_points, 2)
+            pygame.draw.lines(win, self.color, False, updated_points, 1)
 
         pygame.draw.circle(win, self.color, (x, y), self.radius)
         if not self.sun:
-            distance_text = game.FONT.render(f'{round(self.distance_to_sun/1000), 1} km', True, 'white')
+            distance_text = game.FONT.render(self.name + ": " + f'{round(self.distance_to_sun/1000), 1} km', True, 'white')
             win.blit(distance_text, (x - distance_text.get_width() / 2, y + 10))
 
     def attraction(self, other):
@@ -84,31 +86,44 @@ class Game():
     def run(self):
         run = True
         clock = pygame.time.Clock()
+        real_time_elapsed = 0
+        sim_time_elapsed = 0
 
-        sun = Planet(0, 0, 30, 'Yellow', 1.98892 * 10**30)
+        sun = Planet("Sun", 0, 0, 24, 'Yellow', 1.98892 * 10**30)
         sun.sun = True
 
-        earth = Planet(-1 * Planet.ASTRO_UNIT, 0, 16,'Cyan', 5.9742 * 10**24)
-        earth.y_vel = 29.783 * 1000
-
-        mars = Planet(-1.524 * Planet.ASTRO_UNIT, 0, 12, 'Red', 6.39 * 10**23)
-        mars.y_vel = 24.077 * 1000
-
-        mercury = Planet(0.387 * Planet.ASTRO_UNIT, 0, 8,'Dark Grey', 3.30 * 10**23)
+        mercury = Planet("Mercury", 0.387 * Planet.ASTRO_UNIT, 0, 4,'Dark Grey', 3.30 * 10**23)
         mercury.y_vel = -47.4 * 1000
 
-        venus = Planet(0.723 * Planet.ASTRO_UNIT, 0, 14, 'White', 4.8685 * 10**24)
+        venus = Planet("Venus", 0.723 * Planet.ASTRO_UNIT, 0, 14, 'Orange', 4.8685 * 10**24)
         venus.y_vel = -35.02 * 1000
 
-        planets = [sun, earth, mars, mercury, venus]
+        earth = Planet("Earth", -1 * Planet.ASTRO_UNIT, 0, 16,'Cyan', 5.972 * 10**24)
+        earth.y_vel = 29.783 * 1000
+
+        mars = Planet("Mars", -1.524 * Planet.ASTRO_UNIT, 0, 12, 'Red', 6.39 * 10**23)
+        mars.y_vel = 24.077 * 1000
+
+        jupiter = Planet("Jupiter", 5.2 * Planet.ASTRO_UNIT, 0, 24, 'Brown', 1.898 * 10**27)
+        jupiter.y_vel = 13.72 * 1000
+
+        planets = [sun, mercury, venus, earth, mars, jupiter]
 
         while run:
             clock.tick(60)
+            real_time_elapsed += 1
+            sim_time_elapsed += sun.TIMESTEP
             self.WIN.fill('Black')
+
+            
+            # Check if the orbit line overlaps
+                # Print day passed
             
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+                    print("Real time elapsed: " + str(round((real_time_elapsed / 60), 1)) + "s")
+                    print("Earth months simulated: " + str(round((sim_time_elapsed / 60 / 24 / 1800), 1)))
                     run = False
                     
 
