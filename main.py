@@ -1,18 +1,10 @@
 import pygame
 import math
 
-pygame.init()
-
-WIDTH, HEIGHT = 800, 800
-WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Planet Simulator")
-
-FONT = pygame.font.SysFont('comicsans', 16)
-
 class Planet:
     ASTRO_UNIT = 149.6e6 * 1000
     GRAV_CONST = 6.67428e-11
-    SCALE = 250 / ASTRO_UNIT # 1 ASTRO_UNIT = 100 px
+    SCALE = 150 / ASTRO_UNIT # 1 ASTRO_UNIT = 100 px
     TIMESTEP = 3600 * 12 # Amount of time each movement represents (1 day)
 
     def __init__(self, x, y, radius, color, mass):
@@ -30,15 +22,15 @@ class Planet:
         self.y_vel = 0
 
     def draw(self, win):
-        x = self.x * self.SCALE + WIDTH / 2
-        y = self.y * self.SCALE + HEIGHT / 2
+        x = self.x * self.SCALE + game.WIDTH / 2
+        y = self.y * self.SCALE + game.HEIGHT / 2
 
         if len(self.orbit) > 2:
             updated_points = []
             for point in self.orbit:
                 x, y = point
-                x = x * self.SCALE + WIDTH / 2
-                y = y * self.SCALE + HEIGHT / 2
+                x = x * self.SCALE + game.WIDTH / 2
+                y = y * self.SCALE + game.HEIGHT / 2
 
                 updated_points.append((x, y))
 
@@ -46,7 +38,7 @@ class Planet:
 
         pygame.draw.circle(win, self.color, (x, y), self.radius)
         if not self.sun:
-            distance_text = FONT.render(f"{round(self.distance_to_sun/1000), 1} km", True, 'white')
+            distance_text = game.FONT.render(f'{round(self.distance_to_sun/1000), 1} km', True, 'white')
             win.blit(distance_text, (x - distance_text.get_width() / 2, y + 10))
 
     def attraction(self, other):
@@ -81,46 +73,53 @@ class Planet:
         self.y += self.y_vel * self.TIMESTEP
         self.orbit.append((self.x, self.y))
 
+class Game():
+    def __init__(self):
+        pygame.init()
+        self.WIDTH, self.HEIGHT = 1000, 1000
+        self.WIN = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
+        self.FONT = pygame.font.SysFont('comicsans', 16)
+        pygame.display.set_caption("Planet Simulator")
 
-def main():
-    run = True
-    clock = pygame.time.Clock()
+    def run(self):
+        run = True
+        clock = pygame.time.Clock()
 
-    sun = Planet(0, 0, 30, 'Yellow', 1.98892 * 10**30)
-    sun.sun = True
+        sun = Planet(0, 0, 30, 'Yellow', 1.98892 * 10**30)
+        sun.sun = True
 
-    earth = Planet(-1 * Planet.ASTRO_UNIT, 0, 16,'Cyan', 5.9742 * 10**24)
-    earth.y_vel = 29.783 * 1000
+        earth = Planet(-1 * Planet.ASTRO_UNIT, 0, 16,'Cyan', 5.9742 * 10**24)
+        earth.y_vel = 29.783 * 1000
 
-    mars = Planet(-1.524 * Planet.ASTRO_UNIT, 0, 12, 'Red', 6.39 * 10**23)
-    mars.y_vel = 24.077 * 1000
+        mars = Planet(-1.524 * Planet.ASTRO_UNIT, 0, 12, 'Red', 6.39 * 10**23)
+        mars.y_vel = 24.077 * 1000
 
-    mercury = Planet(0.387 * Planet.ASTRO_UNIT, 0, 8,'Dark Grey', 3.30 * 10**23)
-    mercury.y_vel = -47.4 * 1000
+        mercury = Planet(0.387 * Planet.ASTRO_UNIT, 0, 8,'Dark Grey', 3.30 * 10**23)
+        mercury.y_vel = -47.4 * 1000
 
-    venus = Planet(0.723 * Planet.ASTRO_UNIT, 0, 14, 'White', 4.8685 * 10**24)
-    venus.y_vel = -35.02 * 1000
+        venus = Planet(0.723 * Planet.ASTRO_UNIT, 0, 14, 'White', 4.8685 * 10**24)
+        venus.y_vel = -35.02 * 1000
 
+        planets = [sun, earth, mars, mercury, venus]
 
+        while run:
+            clock.tick(60)
+            self.WIN.fill('Black')
+            
 
-    planets = [sun, earth, mars, mercury, venus]
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
+                    
 
-    while run:
-        clock.tick(60)
-        WIN.fill('Black')
-        
+            for planet in planets:
+                planet.update_position(planets)
+                planet.draw(self.WIN)
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
-                
+            pygame.display.update()
 
-        for planet in planets:
-            planet.update_position(planets)
-            planet.draw(WIN)
+        pygame.quit()
 
-        pygame.display.update()
-
-    pygame.quit()
-
-main()
+game = Game()
+if __name__ == '__main__':
+    game.run()
